@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <cstdlib>
+#include "Circle.h"
 using namespace std;
 bool running = true;
 
@@ -9,7 +10,7 @@ struct RenderState {
 
 	BITMAPINFO bitmapInfo;
 } renderState; 
-
+Circle* circleCache[200] = {};
 #include "renderer.cpp"
 
 LRESULT CALLBACK window_callback(HWND   hwnd, UINT   uMsg, WPARAM wParam, LPARAM lParam) {
@@ -63,6 +64,7 @@ int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int
 	HDC hdc = GetDC(window);
 	// Game loop
 	int x = 200;
+	Circle c(100);
 	while (running) {
 		// Input
 		MSG message;
@@ -74,9 +76,11 @@ int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int
 		
 		clearScreen();
 		drawRect(300, 100, 75, 75, 0xffaaff);
-		drawRectF(100, 100, 100, 100, 0xffffff);
-		drawCircle(x, 600, 50, 0xaaffff);
-		drawCircleF(600, 600, 50, 0xaaffff);
+		
+		drawRectF(400, 300, 201, 1, 0xffffff);
+		
+		drawCircle(500, 300, 50, 0xaaffff);
+		drawCircleF(500, 500, 100, 0xffaaff);
 		
 		
 		x++;
