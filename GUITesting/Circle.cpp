@@ -9,6 +9,5 @@ Circle:: Circle(int r) : radius(r), bitmap(new bool[(r * 2 + 1) * (r * 2 + 1)]),
 			else bitmap[i * (r * 2 + 1) + j] = false;
 			if (d <= r) bitmapF[i * (r * 2 + 1) + j] = true;
 			else bitmapF[i * (r * 2 + 1) + j] = false;
-			
 		}
 }
