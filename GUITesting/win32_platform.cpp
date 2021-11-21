@@ -82,7 +82,6 @@ int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int
 		drawCircle(500, 300, 50, 0xaaffff);
 		drawCircleF(500, 500, 100, 0xffaaff);
 		
-		
 		x++;
 		// Render
 		StretchDIBits(hdc, 0, 0, renderState.width, renderState.height, 0, 0, renderState.width, renderState.height, renderState.memory, &renderState.bitmapInfo, DIB_RGB_COLORS, SRCCOPY);

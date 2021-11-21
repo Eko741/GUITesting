@@ -1,4 +1,5 @@
 #include <math.h>
+#include <algorithm>
 void clearScreen() {
 	unsigned int* pixel = (unsigned int*)renderState.memory;
 	for (int i = 0; i < renderState.height; i++)
@@ -125,5 +126,55 @@ void drawCircleF(int x, int y, int r, int color) {
 		}
 			pixel += renderState.width - 2 * r - 1 + xOverlap;
 		
+	}
+}
+
+void drawLine(int x1, int  y1, int  x2, int  y2, int color) {
+	unsigned int* pixel = (unsigned int*)renderState.memory + x1 + y1 * renderState.width;
+	if (x1 == x2) {
+		if (y1 > y2) {
+			for (int i = 0; i <= abs(y1 - y2); i++) {
+				*pixel = color;
+				pixel += renderState.width;
+			}
+		}
+		else {
+			for (int i = 0; i <= abs(y1 - y2); i++) {
+				*pixel = color;
+				pixel -= renderState.width;
+			}
+		}
+		return;
+	}
+	if (x1 > x2) {
+		std::swap(x1, x2);
+		std::swap(y1, y2);
+	}
+	int deltaX = x2 - x1;
+	int deltaY = y2 - y1;
+	int k = deltaY / deltaX;
+	int deltaK = deltaY % deltaX;
+	if (deltaK == 0) deltaK = 1;
+
+	if (k == 0) {
+		k = deltaX / deltaY;
+		deltaK = deltaX % deltaY;
+		for (int i = 0; i < deltaY; i++) {
+			for (int j = 0; j < deltaX; j++) {
+				*pixel++ = color;
+			}
+			pixel += k < 0 ? -renderState.width : renderState.width;
+		}
+		return;
+	}
+
+	for (int i = 0; i < deltaY; i++) {
+		for (int j = 0; j < k; j++) {
+			*pixel++ = color;
+			if (deltaY % (deltaY / deltaK) == 0) {
+				*pixel++ = color;
+			}
+		}
+		pixel += k > 0 ? -renderState.width : renderState.width;
 	}
 }
