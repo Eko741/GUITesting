@@ -65,7 +65,7 @@ int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int
 	int x, y;
 	int deltaX, deltaY;
 	x = 200;
-	y = 200;
+	y = 50;
 	deltaY = 1;
 	deltaX = 1;
 	
@@ -81,17 +81,21 @@ int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int
 		// Simulate
 		
 		clearScreen();
-		drawRectF(100, 100, 600, 250, 0xffffff);
-		drawCircleF(x, y, 50, 0xff0000, circleCache);
-		x += deltaX;
+		// Render
+		
+		drawRect(400, y, 100, 100, 0xfffff);
+		drawRect(200, 200, 100, 100, 0xfffff);
+		
+		drawLine(300, 200, 400, y, 0xadd11);
+		drawLine(300, 300, 400, y + 100, 0xadd11);
+		//drawLine(200, 300, 300, 400, 0xadd11);
+	
 		y += deltaY;
-		if (y >= 350 - 50 || y <= 100 + 50) {
+		if (y <= 0 || y >= renderState.height - 100 - 1) {
 			deltaY *= -1;
 		}
-		if (x >= 700 - 50 || x <= 100 + 50) {
-			deltaX *= -1;
-		}
-		// Render
+
+		
 		// Puts the pixels in the renderbuffer on the screen
 		StretchDIBits(hdc, 0, 0, renderState.width, renderState.height, 0, 0, renderState.width, renderState.height, renderState.memory, &renderState.bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 	}

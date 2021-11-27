@@ -1,5 +1,6 @@
 #include <math.h>
 #include <algorithm>
+
 void clearScreen() {
 	unsigned int* pixel = (unsigned int*)renderState.memory;
 	for (int i = 0; i < renderState.height; i++)
@@ -17,8 +18,8 @@ void drawRectF(unsigned int x, unsigned int y, unsigned int width, unsigned int 
 	if (y + height > renderState.height) height -= y + height - renderState.height;
 	
 	unsigned int* pixel = (unsigned int*)renderState.memory + x + y* renderState.width;
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++)
+	for (int i = 0; i < height + 1; i++) {
+		for (int j = 0; j < width + 1; j++)
 			*pixel++ = color;
 		pixel += renderState.width - width;
 	}
@@ -102,50 +103,70 @@ void drawShapeF(int x, int y, Shape* s, int color) {
 
 void drawLine(int x1, int  y1, int  x2, int  y2, int color) {
 	unsigned int* pixel = (unsigned int*)renderState.memory + x1 + y1 * renderState.width;
+	if (x1 > x2) {
+		std::swap(x1, x2);
+		std::swap(y1, y2);
+	}
 	if (x1 == x2) {
+		int l = abs(y1 - y2) + 1;
 		if (y1 > y2) {
-			for (int i = 0; i <= abs(y1 - y2); i++) {
+			for (int i = 0; i <= l; i++) {
 				*pixel = color;
 				pixel += renderState.width;
 			}
 		}
 		else {
-			for (int i = 0; i <= abs(y1 - y2); i++) {
+			for (int i = 0; i <= l; i++) {
 				*pixel = color;
 				pixel -= renderState.width;
 			}
 		}
 		return;
 	}
-	if (x1 > x2) {
-		std::swap(x1, x2);
-		std::swap(y1, y2);
+
+	if (y1 == y2) {
+		return;
 	}
 	int deltaX = x2 - x1;
 	int deltaY = y2 - y1;
-	int k = deltaY / deltaX;
-	int deltaK = deltaY % deltaX;
-	if (deltaK == 0) deltaK = 1;
+	double k = deltaY / (double)deltaX;
+	double a = 0;
+	
 
-	if (k == 0) {
-		k = deltaX / deltaY;
-		deltaK = deltaX % deltaY;
-		for (int i = 0; i < deltaY; i++) {
-			for (int j = 0; j < deltaX; j++) {
-				*pixel++ = color;
+	if (k > 1 || k < -1) {
+		k = deltaX / (double)deltaY;
+		deltaY = abs(deltaY);
+		for (int i = 0; i < deltaY + 1; i++) {
+			a += k;
+			if (a >= 1) {
+				pixel++;
+				a--;
 			}
-			pixel += k < 0 ? -renderState.width : renderState.width;
+			if (a <= -1) {
+				pixel++;
+				a++;
+			}
+			*pixel = color;
+			pixel += k < 0 ? -renderState.width : renderState.width ;
 		}
+		*((unsigned int*)renderState.memory + x2 + y2 * renderState.width) = color;
 		return;
 	}
-
-	for (int i = 0; i < deltaY; i++) {
-		for (int j = 0; j < k; j++) {
-			*pixel++ = color;
-			if (deltaY % (deltaY / deltaK) == 0) {
-				*pixel++ = color;
-			}
+	
+	
+	for (int i = 0; i < deltaX + 1; i++) {
+		a += k;
+		if (a >= 1) {
+			pixel += renderState.width;
+			a--;
 		}
-		pixel += k > 0 ? -renderState.width : renderState.width;
+		if (a <= -1) {
+			pixel -= renderState.width;
+			a++;
+		}
+		*pixel++ = color;
 	}
+	*((unsigned int*)renderState.memory + x2 + y2 * renderState.width) = color;
+	
+
 }
