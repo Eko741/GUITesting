@@ -47,19 +47,19 @@ LRESULT CALLBACK window_callback(HWND hwnd, UINT   uMsg, WPARAM wParam, LPARAM l
 }
 
 
-int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
+int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 	// Create Window Class
-	WNDCLASS windowClass = {}; 
+	WNDCLASS windowClass = {};
 	windowClass.style = CS_HREDRAW | CS_VREDRAW; // Redraw the window when changing the vertical och horizontal size
 	windowClass.lpszClassName = "GUI"; // Name of the windowclass
 	windowClass.lpfnWndProc = window_callback; //Pointer to callback function
-	
+
 	// Register Class
 	RegisterClass(&windowClass);
-	
+
 	// Craete Window
 	// Class name, Window name, Style of the window see https://docs.microsoft.com/en-us/windows/desktop/winmsg/window-styles, posx, posy, width, height, for parent window nullptr, for amnu window nullptr, handle to the window instance, no use in this case nullptr.
-	HWND window = CreateWindow(windowClass.lpszClassName, "GUI", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME  | WS_MAXIMIZEBOX | WS_VISIBLE , CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInstance, 0);
+	HWND window = CreateWindow(windowClass.lpszClassName, "GUI", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInstance, 0);
 	HDC hdc = GetDC(window); // Handle to the decive context from window
 	// Game loop
 	int x, y;
@@ -68,8 +68,9 @@ int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int
 	y = 50;
 	deltaY = 1;
 	deltaX = 1;
-	
+
 	Shape* circleCache[200] = {};
+	
 	while (running) {
 		// Input
 		MSG message;
@@ -83,17 +84,11 @@ int  WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int
 		clearScreen();
 		// Render
 		
-		drawRect(400, y, 100, 100, 0xfffff);
-		drawRect(200, 200, 100, 100, 0xfffff);
 		
-		drawLine(300, 200, 400, y, 0xadd11);
-		drawLine(300, 300, 400, y + 100, 0xadd11);
-		//drawLine(200, 300, 300, 400, 0xadd11);
 	
-		y += deltaY;
-		if (y <= 0 || y >= renderState.height - 100 - 1) {
-			deltaY *= -1;
-		}
+		
+
+		
 
 		
 		// Puts the pixels in the renderbuffer on the screen
