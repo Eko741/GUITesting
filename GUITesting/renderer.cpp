@@ -65,6 +65,28 @@ void drawCircle(int x, int y, int r, int color, Shape **circleCache) {
 	}
 }
 
+void drawCircle(int x, int y, int color, Shape* circle) {
+	if (!circle) 
+		return;
+	int r = circle->getWidth();
+	if (x - r > renderState.width || y - r > renderState.height) return;
+	int xOverlap = x + r - renderState.width;
+	if (xOverlap < 0) xOverlap = 0;
+	else xOverlap++;
+	int yOverlap = y + r - renderState.height;
+	if (yOverlap < 0) yOverlap = 0;
+	else yOverlap++;
+
+	unsigned int* pixel = (unsigned int*)renderState.memory + x - r + (y - r) * renderState.width;
+	for (int i = 0; i < r * 2 - yOverlap; i++) {
+		for (int j = 0; j < r * 2 - xOverlap; j++) {
+			if (circle->getBitmap((j >= r) ? r * 2 - 1 - j : j, (i >= r) ? r * 2 - 1 - i : i)) *pixel = color;
+			pixel++;
+		}
+		pixel += renderState.width - 2 * r + xOverlap;
+	}
+}
+
 void drawCircleF(int x, int y, int r, int color, Shape** circleCache) {
 	if (!circleCache[r]) {
 		circleCache[r] = new Shape(r);
@@ -147,5 +169,15 @@ void drawLine(int x1, int  y1, int  x2, int  y2, int color) {
 			}
 		}
 		pixel += k > 0 ? -renderState.width : renderState.width;
+	}
+}
+
+void drawPoint(int x, int y, int color) {
+	unsigned int* pixel = (unsigned int*)renderState.memory + x - 1 + (y - 1) * renderState.width;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			*pixel++ = color;
+		}
+		pixel += renderState.width - 3;
 	}
 }
