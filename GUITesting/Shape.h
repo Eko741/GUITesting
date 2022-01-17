@@ -10,7 +10,7 @@ public:
 	int getHeight() { return height; }
 	int getWidth() { return width; }
 private:
-	bool* bitmap, *bitmapF;
+	bool* bitmap, *bitmapF; 
 	int width, height;
 };
 
