@@ -1,5 +1,6 @@
 #include "RendererClass.h"
 #include <algorithm>
+#include <string>
 
 void Renderer::clearScreen() {
 	if (hashingPass) {
@@ -12,11 +13,15 @@ void Renderer::clearScreen() {
 			*pixel++ = 0;
 }
 
-void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color) {
+void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color, RenderMode renderMode) {
+
 	if (hashingPass) {
-		renderID += ((long)((x < 16) ^ y) ^ ((long)((width < 16) ^ height) < 32)) + color;
+		renderID += ((long)((x << 16) ^ y) ^ ((long)((width << 16) ^ height) << 32)) + color;
 		return;
 	}
+
+	x += (renderMode * width) / 2;
+	y += (renderMode * height) / 2;
 
 	if (x < 0) {
 		width += x;
@@ -48,11 +53,14 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 	}
 }
 
-void Renderer::drawRect(int x, int y, int width, int height, unsigned int color) {
+void Renderer::drawRect(int x, int y, int width, int height, unsigned int color, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += ((long)((x < 16) ^ y) ^ ((long)((width < 16) ^ height) < 32)) + color;
+		renderID += ((long)((x << 16) ^ y) ^ ((long)((width << 16) ^ height) << 32)) + color;
 		return;
 	}
+
+	x += (renderMode * width) / 2;
+	y += (renderMode * height) / 2;
 
 	bool drawLeft = true, drawRight = true, drawBottom = true, drawTop = true;
 	if (x < 0) {
@@ -104,11 +112,14 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color)
 	}
 }
 
-void Renderer::drawCircle(int x, int y, int r, int color) {
+void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += ((long)((x < 16) ^ y) ^ ((long)((r < 16) ^ (long)circleCache) < 32)) + color;
+		renderID += ((long)((x << 16) ^ y) ^ ((long)((r << 16) ^ (long)circleCache) << 32)) + color;
 		return;
 	}
+
+	x += (renderMode * width) / 2;
+	y += (renderMode * height) / 2;
 
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
 	if (xStart >= width || yStart >= height || xStop < 0 || yStop < 0) return;
@@ -147,11 +158,14 @@ void Renderer::drawCircle(int x, int y, int r, int color) {
 	}
 }
 
-void Renderer::drawCircleF(int x, int y, int r, int color) {
+void Renderer::drawCircleF(int x, int y, int r, int color, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += ((long)((x < 16) ^ y) ^ ((long)((r < 16) ^ (long)circleCache) < 32)) + color;
+		renderID += ((long)((x << 16) ^ y) ^ ((long)((r << 16) ^ (long)circleCache) << 32)) + color;
 		return;
 	}
+
+	x += (renderMode * width) / 2;
+	y += (renderMode * height) / 2;
 
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
 	if (xStart >= width || yStart >= height || xStop < 0 || yStop < 0) return;
@@ -190,11 +204,14 @@ void Renderer::drawCircleF(int x, int y, int r, int color) {
 	}
 }
 
-void Renderer::drawCircle(int x, int y, int color, Shape* circle) {
+void Renderer::drawCircle(int x, int y, int color, Shape* circle, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += ((long)((x < 16) ^ y) ^ ((long)(((int)circle < 16) ^ circle->getHeight()) < 32)) + color;
+		renderID += ((long)((x << 16) ^ y) ^ ((long)(((int)circle << 16) ^ circle->getHeight()) << 32)) + color;
 		return;
 	}
+	x += (renderMode * width) / 2;
+	y += (renderMode * height) / 2;
+
 	if (!circle)
 		return;
 	int r = circle->getWidth();
@@ -216,11 +233,14 @@ void Renderer::drawCircle(int x, int y, int color, Shape* circle) {
 	}
 }
 
-void Renderer::drawShapeF(int x, int y, Shape* s, int color) {
+void Renderer::drawShapeF(int x, int y, Shape* s, int color, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += ((long)((x < 16) ^ y) ^ ((long)(((int)s < 16) ^ s->getHeight()) < 32)) + color;
+		renderID += ((long)((x << 16) ^ y) ^ ((long)(((int)s << 16) ^ s->getHeight()) << 32)) + color;
 		return;
 	}
+
+	x += (renderMode * width) / 2;
+	y += (renderMode * height) / 2;
 
 	unsigned int* pixel = (unsigned int*)memory + x + y * width;
 	if (!s) return;
@@ -233,11 +253,17 @@ void Renderer::drawShapeF(int x, int y, Shape* s, int color) {
 	}
 }
 
-void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color) {
+void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += ((long)((x1 < 16) ^ y1) ^ ((long)((x2 < 16) ^ y2) < 32)) + color;
+		renderID += ((long)((x1 << 16) ^ y1) ^ ((long)((x2 << 16) ^ y2) << 32)) + color;
 		return;
 	}
+	x1 += (renderMode * width) / 2;
+	y1 += (renderMode * height) / 2;
+	x2 += (renderMode * width) / 2;
+	y2 += (renderMode * height) / 2;
+
+	if (x1 > width || x1 < 0 || x2 > width || x2 < 0 || y1 > height || y1 < 0 || y2 > height || y2 < 0) return;
 
 	if (x1 == x2) {
 		unsigned int* pixel = (unsigned int*)memory + x1 + ((y1 < y2) ? y1 : y2) * width;
@@ -307,9 +333,9 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color) {
 
 }
 
-void Renderer::drawPoint(int x, int y, int color, int size) {
+void Renderer::drawPoint(int x, int y, int color, int size, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += (long)((x < 16) ^ y) ^ ((long)((color < 16) ^ size) < 32);
+		renderID += (((long)x << 16) ^ (long)y) ^ ((((long)size << 16) ^ (long)color) << 32);
 		return;
 	}
 	drawCircleF(x, y , 1 + size * 2, color);

@@ -1,12 +1,15 @@
 #include <windows.h>
+#include <Windows.h>
 #include <cstdlib>
 #include "Shape.h"
 #include "RendererClass.h"
 #include <chrono>
 #include <string>
+#include "Point.h"
 using namespace std;
 bool running = true;
 Renderer renderer;
+
 
 LRESULT CALLBACK window_callback(HWND hwnd, UINT   uMsg, WPARAM wParam, LPARAM lParam) { //If the user does something to the window
 	LRESULT result = 0; // Creates an emtpy result
@@ -25,8 +28,8 @@ LRESULT CALLBACK window_callback(HWND hwnd, UINT   uMsg, WPARAM wParam, LPARAM l
 
 		if (renderer.memory) VirtualFree(renderer.memory, 0, MEM_RELEASE); // if there already is a memory for the window it should be deleted
 
-		renderer.Width() * renderer.Height() * sizeof(unsigned int); // Buffersize is the area, in terms of pixels, times the size of an interger.
-		renderer.memory = VirtualAlloc(0, renderer.Width() * renderer.Height() * sizeof(unsigned int), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE); // Starts at a location the computer decides becuase it's NULL, size of the allocation, se förklaring https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualalloc, only able to read and write data not excecute code
+		// Buffersize is the area, in terms of pixels, times the size of an interger.
+		renderer.memory = VirtualAlloc(0, (long)renderer.Width() * (long)renderer.Height() * sizeof(unsigned int), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE); // Starts at a location the computer decides becuase it's NULL, size of the allocation, se förklaring https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualalloc, only able to read and write data not excecute code
 
 		renderer.bitmapInfo.bmiHeader.biSize = sizeof(renderer.bitmapInfo.bmiHeader); // How many bytes are requried by the structure
 		renderer.bitmapInfo.bmiHeader.biWidth = renderer.Width(); // The width of the picture
@@ -66,6 +69,8 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 	chrono::milliseconds MSPERFRAME = 15ms;;
 	int x = 0;
 	int framecounter = 0;
+	Point2D a(2, 2);
+	
 	// Game loop
 	while (running) {
 		// Input
@@ -76,21 +81,22 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 			DispatchMessage(&message);
 		}
 		// Simulate
+		if (x > 200) 
+			x = -200;
 
 		// Render
+		Sleep(100);
 		if (clock::now() - endOfRender >= MSPERFRAME) {
 			renderer.startHashingPass();
 			for (int i = 0; i < 2; i++) {
 				renderer.clearScreen();
-				renderer.drawPoint(200, 200, 0x888888, 4);
-				renderer.drawPoint(200, 200, 0x888888, 5);
+				renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
+				renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
+				renderer.drawPoint(x, 200, 0x888888, 4);
 				renderer.drawLine(200, 200, 300, 300, 0xfffffff);
-				renderer.drawPoint(300, 300, 0x888888, 6);
 				renderer.drawLine(300, 300, 400, 200, 0xfffffff);
-				renderer.drawPoint(400, 200, 0x888888, 7);
 				renderer.drawLine(200, 200, 400, 200, 0xfffffff);
 				renderer.drawCircle(300, 200, 100, 0x44ffff);
-
 				if (!i) {
 					if (renderer.render())
 						break;
@@ -98,14 +104,13 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 				else
 					// Puts the pixels in the renderbuffer on the screen
 					StretchDIBits(hdc, 0, 0, renderer.Width(), renderer.Height(), 0, 0, renderer.Width(), renderer.Height(), renderer.memory, &renderer.bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
-				endOfRender = clock::now();
 			
 			}
+			endOfRender = clock::now();
 			x++;
 			framecounter++;
 		}
 		if (framecounter == 60) {
-			OutputDebugStringA((to_string(chrono::duration_cast<chrono::milliseconds>(clock::now() - lastFps).count()).append("\n")).c_str());
 			lastFps = clock::now();
 			framecounter = 0;
 		}
