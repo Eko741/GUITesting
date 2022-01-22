@@ -69,7 +69,7 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 	chrono::milliseconds MSPERFRAME = 15ms;;
 	int x = 0;
 	int framecounter = 0;
-	Point2D a(2, 2);
+	Point2D a(100, 100);
 	
 	// Game loop
 	while (running) {
@@ -92,7 +92,7 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 				renderer.clearScreen();
 				renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
 				renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
-				renderer.drawPoint(x, 200, 0x888888, 4);
+				renderer.drawPoint(a, 0xffffff, 10, RenderMode::Game);
 				renderer.drawLine(200, 200, 300, 300, 0xfffffff);
 				renderer.drawLine(300, 300, 400, 200, 0xfffffff);
 				renderer.drawLine(200, 200, 400, 200, 0xfffffff);

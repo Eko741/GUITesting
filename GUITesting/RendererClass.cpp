@@ -338,7 +338,11 @@ void Renderer::drawPoint(int x, int y, int color, int size, RenderMode renderMod
 		renderID += (((long)x << 16) ^ (long)y) ^ ((((long)size << 16) ^ (long)color) << 32);
 		return;
 	}
-	drawCircleF(x, y , 1 + size * 2, color);
+
+	if (size < 1) 
+		return;
+	
+	drawCircleF(x, y, size, color, renderMode);
 	
 }
 
