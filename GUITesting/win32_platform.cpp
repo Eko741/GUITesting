@@ -96,8 +96,8 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 			renderer.startHashingPass();
 			for (int i = 0; i < 2; i++) {
 				renderer.clearScreen();
-				if (clock::now - )renderer.drawRectF(50, 50, 450, 450, 0xffffff, RenderMode::Game);
-				/*renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
+				renderer.drawRect(-50, -50, 450, 450, 0xffffff, RenderMode::Game);
+				renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
 				renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
 				renderer.drawLine(a, b, 0xffffff);
 				renderer.drawLine(b, c, 0xffffff);
@@ -110,7 +110,7 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 				renderer.drawLine(e, f, 0xffffff);
 				renderer.drawLine(f, g, 0xffffff);
 				renderer.drawLine(g, h, 0xffffff);
-				renderer.drawLine(e, h, 0xffffff);*/
+				renderer.drawLine(e, h, 0xffffff);
 				if (!i) {
 					if (renderer.render())
 						break;

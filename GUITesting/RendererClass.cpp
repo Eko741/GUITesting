@@ -36,12 +36,12 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 		y = 0;
 	}
 	if (x + width + 1 > sWidth) {
-		width -= x + width + 1 - width;
+		width -= x + width + 1 - sWidth;
 		if (width <= 0)
 			return;
 	}
 	if (y + height + 1 > sHeight) {
-		height -= y + height + 1 - height;
+		height -= y + height + 1 - sHeight;
 		if (height <= 0)
 			return;
 	}
@@ -59,8 +59,8 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color,
 		return;
 	}
 
-	x += (renderMode * width) / 2;
-	y += (renderMode * height) / 2;
+	x += (renderMode * sWidth) / 2;
+	y += (renderMode * sHeight) / 2;
 
 	bool drawLeft = true, drawRight = true, drawBottom = true, drawTop = true;
 	if (x < 0) {
@@ -77,19 +77,19 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color,
 		drawTop = false;
 		y = 0;
 	}
-	if (x + width + 1 > width) {
-		width -= x + width + 1 - width;
+	if (x + width + 1 > sWidth) {
+		width -= x + width + 1 - sWidth;
 		if (width <= 0)
 			return;
 		drawRight = false;
 	}
-	if (y + height + 1 > height) {
-		height -= y + height + 1 - height;
+	if (y + height + 1 > sHeight) {
+		height -= y + height + 1 - sHeight;
 		if (height <= 0)
 			return;
 		drawBottom = false;
 	}
-	unsigned int* pixel = (unsigned int*)memory + x + y * width;
+	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth;
 
 	for (int i = 0; i < width - 1; i++) {
 		if (drawTop) *pixel = color;
@@ -98,7 +98,7 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color,
 
 	for (int i = 0; i < height - 1; i++) {
 		if (drawRight) *pixel = color;
-		pixel += width;
+		pixel += sWidth;
 	}
 
 	for (int i = 0; i < width - 1; i++) {
@@ -108,7 +108,7 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color,
 
 	for (int i = 0; i < height - 1; i++) {
 		if (drawLeft)*pixel = color;
-		pixel -= width;
+		pixel -= sWidth;
 	}
 }
 
