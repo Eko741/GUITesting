@@ -25,6 +25,7 @@ LRESULT CALLBACK window_callback(HWND hwnd, UINT   uMsg, WPARAM wParam, LPARAM l
 		GetClientRect(hwnd, &rect); //rect gets the dimensions of the window
 		renderer.Width(rect.right - rect.left);  // the width is the upmost of the windown minus th downmost of the window
 		renderer.Height(rect.bottom - rect.top); // the width is the leftmost of the windown minus th rightmost of the window 
+		renderer.updateAspectRatio();
 
 		if (renderer.memory) VirtualFree(renderer.memory, 0, MEM_RELEASE); // if there already is a memory for the window it should be deleted
 
@@ -64,12 +65,20 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 
 
 	using clock = chrono::high_resolution_clock;
+	chrono::time_point<chrono::high_resolution_clock> lastRefresh = clock::now();
 	chrono::time_point<chrono::high_resolution_clock> lastFps = clock::now();
 	chrono::time_point<chrono::high_resolution_clock> endOfRender = clock::now();
 	chrono::milliseconds MSPERFRAME = 15ms;;
 	int x = 0;
 	int framecounter = 0;
-	Point2D a(100, 100);
+	Point3D a(1, 1, 5);
+	Point3D b(2, 1, 5);
+	Point3D c(2, 2, 5);
+	Point3D d(1, 2, 5);
+	Point3D e(1, 1, 6);
+	Point3D f(2, 1, 6);
+	Point3D g(2, 2, 6);
+	Point3D h(1, 2, 6);
 	
 	// Game loop
 	while (running) {
@@ -81,38 +90,43 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 			DispatchMessage(&message);
 		}
 		// Simulate
-		if (x > 200) 
-			x = -200;
+		
 
-		// Render
-		Sleep(100);
-		if (clock::now() - endOfRender >= MSPERFRAME) {
+		//if (clock::now() - endOfRender >= MSPERFRAME) {
 			renderer.startHashingPass();
 			for (int i = 0; i < 2; i++) {
 				renderer.clearScreen();
-				renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
+				if (clock::now - )renderer.drawRectF(50, 50, 450, 450, 0xffffff, RenderMode::Game);
+				/*renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
 				renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
-				renderer.drawPoint(a, 0xffffff, 10, RenderMode::Game);
-				renderer.drawLine(200, 200, 300, 300, 0xfffffff);
-				renderer.drawLine(300, 300, 400, 200, 0xfffffff);
-				renderer.drawLine(200, 200, 400, 200, 0xfffffff);
-				renderer.drawCircle(300, 200, 100, 0x44ffff);
+				renderer.drawLine(a, b, 0xffffff);
+				renderer.drawLine(b, c, 0xffffff);
+				renderer.drawLine(c, d, 0xffffff);
+				renderer.drawLine(a, d, 0xffffff);
+				renderer.drawLine(a, e, 0xffffff);
+				renderer.drawLine(b, f, 0xffffff);
+				renderer.drawLine(c, g, 0xffffff);
+				renderer.drawLine(d, h, 0xffffff);
+				renderer.drawLine(e, f, 0xffffff);
+				renderer.drawLine(f, g, 0xffffff);
+				renderer.drawLine(g, h, 0xffffff);
+				renderer.drawLine(e, h, 0xffffff);*/
 				if (!i) {
 					if (renderer.render())
 						break;
 				}
 				else
-					// Puts the pixels in the renderbuffer on the screen
 					StretchDIBits(hdc, 0, 0, renderer.Width(), renderer.Height(), 0, 0, renderer.Width(), renderer.Height(), renderer.memory, &renderer.bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
-			
+
 			}
-			endOfRender = clock::now();
+
+			/*endOfRender = clock::now();
 			x++;
 			framecounter++;
 		}
 		if (framecounter == 60) {
 			lastFps = clock::now();
 			framecounter = 0;
-		}
-		}
+		}*/
+	}
 }

@@ -8,8 +8,8 @@ void Renderer::clearScreen() {
 		return;
 	}
 	unsigned int* pixel = (unsigned int*)memory;
-	for (int i = 0; i < height; i++)
-		for (int j = 0; j < width; j++)
+	for (int i = 0; i < sHeight; i++)
+		for (int j = 0; j < sWidth; j++)
 			*pixel++ = 0;
 }
 
@@ -20,8 +20,8 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 		return;
 	}
 
-	x += (renderMode * width) / 2;
-	y += (renderMode * height) / 2;
+	x += (renderMode * sWidth) / 2;
+	y += (renderMode * sHeight) / 2;
 
 	if (x < 0) {
 		width += x;
@@ -35,21 +35,21 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 			return;
 		y = 0;
 	}
-	if (x + width + 1 > width) {
+	if (x + width + 1 > sWidth) {
 		width -= x + width + 1 - width;
 		if (width <= 0)
 			return;
 	}
-	if (y + height + 1 > height) {
+	if (y + height + 1 > sHeight) {
 		height -= y + height + 1 - height;
 		if (height <= 0)
 			return;
 	}
-	unsigned int* pixel = (unsigned int*)memory + x + y * width;
+	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth;
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++)
 			*pixel++ = color;
-		pixel += width - width;
+		pixel += sWidth - width;
 	}
 }
 
@@ -118,11 +118,11 @@ void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode)
 		return;
 	}
 
-	x += (renderMode * width) / 2;
-	y += (renderMode * height) / 2;
+	x += (renderMode * sWidth) / 2;
+	y += (renderMode * sHeight) / 2;
 
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
-	if (xStart >= width || yStart >= height || xStop < 0 || yStop < 0) return;
+	if (xStart >= sWidth || yStart >= sHeight || xStop < 0 || yStop < 0) return;
 
 	unsigned int* pixel = (unsigned int*)memory;
 
@@ -132,15 +132,15 @@ void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode)
 	}
 
 	if (yStart > 0) {
-		pixel += yStart * width;
+		pixel += yStart * sWidth;
 		yStart = 0;
 	}
-	if (xStop > width)
-		xStop = width + r - x;
+	if (xStop > sWidth)
+		xStop = sWidth + r - x;
 	else xStop = 2 * r;
 
-	if (yStop > height)
-		yStop = height + r - y;
+	if (yStop > sHeight)
+		yStop = sHeight + r - y;
 	else yStop = 2 * r;
 
 	if (!circleCache[r]) {
@@ -154,7 +154,7 @@ void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode)
 			if (c->getBitmap((j >= r) ? r * 2 - 1 - j : j, (i >= r) ? r * 2 - 1 - i : i)) *pixel = color;
 			pixel++;
 		}
-		pixel += width - xStop - xStart;
+		pixel += sWidth - xStop - xStart;
 	}
 }
 
@@ -164,11 +164,11 @@ void Renderer::drawCircleF(int x, int y, int r, int color, RenderMode renderMode
 		return;
 	}
 
-	x += (renderMode * width) / 2;
-	y += (renderMode * height) / 2;
+	x += (renderMode * sWidth) / 2;
+	y += (renderMode * sHeight) / 2;
 
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
-	if (xStart >= width || yStart >= height || xStop < 0 || yStop < 0) return;
+	if (xStart >= sWidth || yStart >= sHeight || xStop < 0 || yStop < 0) return;
 
 	unsigned int* pixel = (unsigned int*)memory;
 
@@ -178,15 +178,15 @@ void Renderer::drawCircleF(int x, int y, int r, int color, RenderMode renderMode
 	}
 
 	if (yStart > 0) {
-		pixel += yStart * width;
+		pixel += yStart * sWidth;
 		yStart = 0;
 	}
-	if (xStop > width)
-		xStop = width + r - x;
+	if (xStop > sWidth)
+		xStop = sWidth + r - x;
 	else xStop = 2 * r;
 
-	if (yStop > height)
-		yStop = height + r - y;
+	if (yStop > sHeight)
+		yStop = sHeight + r - y;
 	else yStop = 2 * r;
 
 	if (!circleCache[r]) {
@@ -200,7 +200,7 @@ void Renderer::drawCircleF(int x, int y, int r, int color, RenderMode renderMode
 			if (c->getBitmapF((j >= r) ? r * 2 - 1 - j : j, (i >= r) ? r * 2 - 1 - i : i)) *pixel = color;
 			pixel++;
 		}
-		pixel += width - xStop - xStart;
+		pixel += sWidth - xStop - xStart;
 	}
 }
 
@@ -209,27 +209,27 @@ void Renderer::drawCircle(int x, int y, int color, Shape* circle, RenderMode ren
 		renderID += ((long)((x << 16) ^ y) ^ ((long)(((int)circle << 16) ^ circle->getHeight()) << 32)) + color;
 		return;
 	}
-	x += (renderMode * width) / 2;
-	y += (renderMode * height) / 2;
+	x += (renderMode * sWidth) / 2;
+	y += (renderMode * sHeight) / 2;
 
 	if (!circle)
 		return;
 	int r = circle->getWidth();
-	if (x - r > width || y - r > height) return;
-	int xOverlap = x + r - width;
+	if (x - r > sWidth || y - r > sHeight) return;
+	int xOverlap = x + r - sWidth;
 	if (xOverlap < 0) xOverlap = 0;
 	else xOverlap++;
-	int yOverlap = y + r - height;
+	int yOverlap = y + r - sHeight;
 	if (yOverlap < 0) yOverlap = 0;
 	else yOverlap++;
 
-	unsigned int* pixel = (unsigned int*)memory + x - r + (y - r) * width;
+	unsigned int* pixel = (unsigned int*)memory + x - r + (y - r) * sWidth;
 	for (int i = 0; i < r * 2 - yOverlap; i++) {
 		for (int j = 0; j < r * 2 - xOverlap; j++) {
 			if (circle->getBitmap((j >= r) ? r * 2 - 1 - j : j, (i >= r) ? r * 2 - 1 - i : i)) *pixel = color;
 			pixel++;
 		}
-		pixel += width - 2 * r + xOverlap;
+		pixel += sWidth - 2 * r + xOverlap;
 	}
 }
 
@@ -239,44 +239,47 @@ void Renderer::drawShapeF(int x, int y, Shape* s, int color, RenderMode renderMo
 		return;
 	}
 
-	x += (renderMode * width) / 2;
-	y += (renderMode * height) / 2;
+	x += (renderMode * sWidth) / 2;
+	y += (renderMode * sHeight) / 2;
 
-	unsigned int* pixel = (unsigned int*)memory + x + y * width;
+	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth;
 	if (!s) return;
 	for (int i = 0; i < s->getHeight(); i++) {
 		for (int j = 0; j < s->getWidth(); j++) {
 			if (s->getBitmapF(j, i)) *pixel = color;
 			pixel++;
 		}
-		pixel += width - s->getWidth();
+		pixel += sWidth - s->getWidth();
 	}
 }
 
 void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode renderMode) {
 	if (hashingPass) {
-		renderID += ((long)((x1 << 16) ^ y1) ^ ((long)((x2 << 16) ^ y2) << 32)) + color;
+		renderID += ((long)((x1 << 16) ^ y1) ^ ((long)((x2 << 16) ^ y2) << 32)) + color + (int)renderMode << 24;
 		return;
 	}
-	x1 += (renderMode * width) / 2;
-	y1 += (renderMode * height) / 2;
-	x2 += (renderMode * width) / 2;
-	y2 += (renderMode * height) / 2;
 
-	if (x1 > width || x1 < 0 || x2 > width || x2 < 0 || y1 > height || y1 < 0 || y2 > height || y2 < 0) return;
+	if (renderMode == RenderMode::Math) {
+		x1 += (renderMode * sWidth) / 2;
+		y1 += (renderMode * sHeight) / 2;
+		x2 += (renderMode * sWidth) / 2;
+		y2 += (renderMode * sHeight) / 2;
+	}
+
+	if (x1 > sWidth - 1 || x1 < 0 || x2 > sWidth - 1 || x2 < 0 || y1 > sHeight - 1 || y1 < 0 || y2 > sHeight - 1 || y2 < 0) return;
 
 	if (x1 == x2) {
-		unsigned int* pixel = (unsigned int*)memory + x1 + ((y1 < y2) ? y1 : y2) * width;
+		unsigned int* pixel = (unsigned int*)memory + x1 + ((y1 < y2) ? y1 : y2) * sWidth;
 		int l = abs(y1 - y2) + 1;
 		for (int i = 0; i < l; i++) {
 			*pixel = color;
-			pixel += width;
+			pixel += sWidth;
 		}
 		return;
 	}
 
 	if (y1 == y2) {
-		unsigned int* pixel = (unsigned int*)memory + ((x1 < x2) ? x1 : x2) + y1 * width;
+		unsigned int* pixel = (unsigned int*)memory + ((x1 < x2) ? x1 : x2) + y1 * sWidth;
 		int l = abs(x1 - x2) + 1;
 		for (int i = 0; i < l; i++) {
 			*pixel++ = color;
@@ -293,7 +296,7 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 	int deltaY = y2 - y1;
 	double k = deltaY / (double)deltaX;
 	double a = 0;
-	unsigned int* pixel = (unsigned int*)memory + x1 + y1 * width;
+	unsigned int* pixel = (unsigned int*)memory + x1 + y1 * sWidth;
 
 	if (k > 1 || k < -1) {
 		k = deltaX / (double)deltaY;
@@ -309,9 +312,9 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 				a++;
 			}
 			*pixel = color;
-			pixel += k < 0 ? -width : width;
+			pixel += k < 0 ? -sWidth : sWidth;
 		}
-		*((unsigned int*)memory + x2 + y2 * width) = color;
+		*((unsigned int*)memory + x2 + y2 * sWidth) = color;
 		return;
 	}
 
@@ -319,16 +322,16 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 	for (int i = 0; i < deltaX + 1; i++) {
 		a += k;
 		if (a >= 1) {
-			pixel += width;
+			pixel += sWidth;
 			a--;
 		}
 		if (a <= -1) {
-			pixel -= width;
+			pixel -= sWidth;
 			a++;
 		}
 		*pixel++ = color;
 	}
-	*((unsigned int*)memory + x2 + y2 * width) = color;
+	*((unsigned int*)memory + x2 + y2 * sWidth) = color;
 
 
 }
@@ -351,5 +354,23 @@ bool Renderer::render() {
 	prevRenderID = renderID;
 	renderID = 0;
 	hashingPass = false;
-	return r;
+	//return r;
+	return false;
 }
+
+void Renderer::drawLine(Point3D point1, Point3D point2, int color) {
+	// Project 3D points to 2D points
+	Point2D a, b;
+	if (!point1.Z()) return;
+
+	a.X(((point1.X() * aspectRatio / point1.Z()) + 1) * 0.5 * (double)sWidth);
+	a.Y(((point1.Y() / point1.Z()) + 1) * 0.5 * (double)sHeight);
+	b.X((((point2.X() * aspectRatio) / point2.Z()) + 1) * 0.5 * (double)sWidth);
+	b.Y(((point2.Y() / point2.Z()) + 1) * 0.5 * (double)sHeight);
+
+	drawLine(a, b, 0xffffff, RenderMode::Game);
+}
+
+/*void Renderer::drawCube(Point3D point, int length, int color) {
+	drawLine(point, point);
+}*/

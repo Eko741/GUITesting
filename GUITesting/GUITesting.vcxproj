@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="Point2D.cpp" />
     <ClCompile Include="Point3D.cpp" />
+    <ClCompile Include="Point3DList.cpp" />
     <ClCompile Include="RendererClass.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="win32_platform.cpp">
@@ -151,6 +152,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Point3DList.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Point2D.h" />
     <ClInclude Include="Point3D.h" />

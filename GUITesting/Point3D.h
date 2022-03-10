@@ -10,8 +10,10 @@ public:
 	double X() { return x; }
 	double Y() { return y; }
 	double Z() { return z; }
-	void X(int a) { x = a; }
-	void Y(int a) { y = a; }
-	void Z(int a) { z = a; }
+	void X(double a) { x = a; }
+	void Y(double a) { y = a; }
+	void Z(double a) { z = a; }
 	double distance(Point3D a);
+
+	const Point3D& operator+(const Point3D & op) const;
 };
