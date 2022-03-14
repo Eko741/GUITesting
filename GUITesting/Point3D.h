@@ -16,4 +16,5 @@ public:
 	double distance(Point3D a);
 
 	const Point3D& operator+(const Point3D & op) const;
+	operator Point2D() const;
 };

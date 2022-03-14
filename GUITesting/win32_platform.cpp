@@ -6,6 +6,7 @@
 #include <chrono>
 #include <string>
 #include "Point.h"
+
 using namespace std;
 bool running = true;
 Renderer renderer;
@@ -79,6 +80,9 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 	Point3D f(2, 1, 6);
 	Point3D g(2, 2, 6);
 	Point3D h(1, 2, 6);
+
+	Point3DList list;
+	list.get2DFLData("binData.FL");
 	
 	// Game loop
 	while (running) {
@@ -96,10 +100,9 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 			renderer.startHashingPass();
 			for (int i = 0; i < 2; i++) {
 				renderer.clearScreen();
-				renderer.drawRect(-50, -50, 450, 450, 0xffffff, RenderMode::Game);
-				renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
-				renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
-				renderer.drawLine(a, b, 0xffffff);
+				//renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
+				//renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
+				/*renderer.drawLine(a, b, 0xffffff);
 				renderer.drawLine(b, c, 0xffffff);
 				renderer.drawLine(c, d, 0xffffff);
 				renderer.drawLine(a, d, 0xffffff);
@@ -110,7 +113,12 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 				renderer.drawLine(e, f, 0xffffff);
 				renderer.drawLine(f, g, 0xffffff);
 				renderer.drawLine(g, h, 0xffffff);
-				renderer.drawLine(e, h, 0xffffff);
+				renderer.drawLine(e, h, 0xffffff);*/
+
+				renderer.graphFromFile("binData.FL");
+
+
+				
 				if (!i) {
 					if (renderer.render())
 						break;
@@ -126,7 +134,6 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 		}
 		if (framecounter == 60) {
 			lastFps = clock::now();
-			framecounter = 0;
-		}*/
+			framecounter = 0;*/
 	}
 }

@@ -30,6 +30,7 @@ public:
 	void startHashingPass() { hashingPass = true; }
 	bool render();
 
+	void graphFromFile(std::string file, int color = 0xffffff);
 
 	void clearScreen();
 	void drawRectF(int x, int y, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math);
@@ -41,7 +42,7 @@ public:
 	void drawLine(int x1, int  y1, int  x2, int  y2, int color = 0xffffff, RenderMode renderMode = RenderMode::Math);
 	void drawPoint(int x, int y, int color, int size = 1, RenderMode renderMode = RenderMode::Math);
 	
-	void drawRectF(Point2D point, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math) 
+	void drawRectF(Point2D point, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math)
 	{ drawRectF(point.X(), point.Y(), width, height, color, renderMode); }
 
 	void drawRect(Point2D point, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math)
@@ -64,9 +65,9 @@ public:
 
 	void drawPoint(Point2D point, int color = 0xffffff, int size = 1, RenderMode renderMode = RenderMode::Math)
 	{ drawPoint(point.X(), point.Y(), color, size, renderMode); }
-
+	
 	void drawLine(Point3D point1, Point3D point2, int color = 0xffffff);
-	void drawCube(Point3D point, int length = 1, int color = 0xfffffff);
+	//void drawCube(Point3D point, int length = 1, int color = 0xfffffff);
 
 };
  

@@ -21,7 +21,10 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 	}
 
 	x += (renderMode * sWidth) / 2;
-	y += (renderMode * sHeight) / 2;
+	if (renderMode == RenderMode::Math) {
+		y *= -1;
+		y += sHeight / 2;
+	}
 
 	if (x < 0) {
 		width += x;
@@ -60,7 +63,10 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color,
 	}
 
 	x += (renderMode * sWidth) / 2;
-	y += (renderMode * sHeight) / 2;
+	if (renderMode == RenderMode::Math) {
+		y *= -1;
+		y += sHeight / 2;
+	}
 
 	bool drawLeft = true, drawRight = true, drawBottom = true, drawTop = true;
 	if (x < 0) {
@@ -119,7 +125,10 @@ void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode)
 	}
 
 	x += (renderMode * sWidth) / 2;
-	y += (renderMode * sHeight) / 2;
+	if (renderMode == RenderMode::Math) {
+		y *= -1;
+		y += sHeight / 2;
+	}
 
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
 	if (xStart >= sWidth || yStart >= sHeight || xStop < 0 || yStop < 0) return;
@@ -165,7 +174,10 @@ void Renderer::drawCircleF(int x, int y, int r, int color, RenderMode renderMode
 	}
 
 	x += (renderMode * sWidth) / 2;
-	y += (renderMode * sHeight) / 2;
+	if (renderMode == RenderMode::Math) {
+		y *= -1;
+		y += sHeight / 2;
+	}
 
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
 	if (xStart >= sWidth || yStart >= sHeight || xStop < 0 || yStop < 0) return;
@@ -210,7 +222,10 @@ void Renderer::drawCircle(int x, int y, int color, Shape* circle, RenderMode ren
 		return;
 	}
 	x += (renderMode * sWidth) / 2;
-	y += (renderMode * sHeight) / 2;
+	if (renderMode == RenderMode::Math) {
+		y *= -1;
+		y += sHeight / 2;
+	}
 
 	if (!circle)
 		return;
@@ -240,7 +255,10 @@ void Renderer::drawShapeF(int x, int y, Shape* s, int color, RenderMode renderMo
 	}
 
 	x += (renderMode * sWidth) / 2;
-	y += (renderMode * sHeight) / 2;
+	if (renderMode == RenderMode::Math) {
+		y *= -1;
+		y += sHeight / 2;
+	}
 
 	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth;
 	if (!s) return;
@@ -260,10 +278,13 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 	}
 
 	if (renderMode == RenderMode::Math) {
-		x1 += (renderMode * sWidth) / 2;
-		y1 += (renderMode * sHeight) / 2;
-		x2 += (renderMode * sWidth) / 2;
-		y2 += (renderMode * sHeight) / 2;
+		x1  += sWidth / 2;
+		x2 +=  sWidth / 2;
+		y1 *= -1;
+		y1 += sHeight / 2;
+		y2 *= -1;
+		y2 += sHeight / 2;
+		
 	}
 
 	if (x1 > sWidth - 1 || x1 < 0 || x2 > sWidth - 1 || x2 < 0 || y1 > sHeight - 1 || y1 < 0 || y2 > sHeight - 1 || y2 < 0) return;
@@ -347,6 +368,19 @@ void Renderer::drawPoint(int x, int y, int color, int size, RenderMode renderMod
 	
 	drawCircleF(x, y, size, color, renderMode);
 	
+}
+
+void Renderer::graphFromFile(std::string file, int color)
+{
+	Point3DList list;
+	list.get2DFLData(file);
+	if (!(list.getPoint(list.Length() - 1).Y() && list.Length())) return;
+	double ratioHeight = (sHeight - 100) / list.getPoint(list.Length() - 1).Y();
+	double ratioWidth = ((double)sWidth - 100) / list.Length();
+	for (int i = 0; i < list.Length() - 1; i++)
+		drawLine(list[i].X() * ratioWidth + 50, -list[i].Y() * ratioHeight + sHeight - 50, list[i + 1].X() * ratioWidth + 50, -list[i + 1].Y()* ratioHeight + sHeight - 50, color, RenderMode::Game);
+	
+
 }
 
 bool Renderer::render() {

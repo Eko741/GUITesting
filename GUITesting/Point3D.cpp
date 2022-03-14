@@ -8,3 +8,8 @@ double Point3D::distance(Point3D a){
 const Point3D& Point3D::operator+(const Point3D& op) const {
 	return Point3D(x + op.x, y + op.y, z + op.z);
 }
+
+Point3D::operator Point2D() const
+{
+	return Point2D(x, y);
+}
