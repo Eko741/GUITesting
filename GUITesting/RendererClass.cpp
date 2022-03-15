@@ -374,8 +374,15 @@ void Renderer::graphFromFile(std::string file, int color)
 {
 	Point3DList list;
 	list.get2DFLData(file);
-	if (!(list.getPoint(list.Length() - 1).Y() && list.Length())) return;
-	double ratioHeight = (sHeight - 100) / list.getPoint(list.Length() - 1).Y();
+	double max = 0;
+	for (int i = 0; i < list.Length(); i++)
+		if (list[i].Y() > max)
+			max = list[i].Y();
+
+	if (!(max && list.Length())) return;
+
+		
+	double ratioHeight = (sHeight - 100) / max;
 	double ratioWidth = ((double)sWidth - 100) / list.Length();
 	for (int i = 0; i < list.Length() - 1; i++)
 		drawLine(list[i].X() * ratioWidth + 50, -list[i].Y() * ratioHeight + sHeight - 50, list[i + 1].X() * ratioWidth + 50, -list[i + 1].Y()* ratioHeight + sHeight - 50, color, RenderMode::Game);
