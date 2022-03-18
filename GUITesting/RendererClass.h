@@ -30,7 +30,8 @@ public:
 	void startHashingPass() { hashingPass = true; }
 	bool render();
 
-	void graphFromFile(std::string file, int color = 0xffffff);
+	void graphFromFile(std::string file, int type = 6, int color = 0xffffff); 
+	//Type 1 = longestWaitTimeAir  2 = longestWaitTimeGround 3 = averageWaitTimeAir 4 = averageWaitTimeGround 5 = averageTimeWasted 6 = failRate
 
 	void clearScreen();
 	void drawRectF(int x, int y, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math);

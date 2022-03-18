@@ -152,6 +152,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FlightLogData.h" />
     <ClInclude Include="Point3DList.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Point2D.h" />
