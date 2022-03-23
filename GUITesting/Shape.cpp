@@ -1,6 +1,7 @@
 #include "Shape.h"
 #include <math.h>
 
+// Creates the top left half of a circle in a bitmap
 Shape::Shape(int r) : width(r), height(r), bitmap(new bool[r * r]), bitmapF(new bool[r * r]) {
 	for (int i = 0; i < r; i++) {
 		for (int j = 0; j < r; j++) {
@@ -12,6 +13,7 @@ Shape::Shape(int r) : width(r), height(r), bitmap(new bool[r * r]), bitmapF(new 
 		}
 	}
 }
+
 
 Shape::Shape(int w, int h) : bitmap(new bool[w * h]), bitmapF(new bool[w * h]), width(w), height(h) {
 	for (int i = 0; i < w * h; i++) { bitmap[i] = false; bitmapF[i] = false; }

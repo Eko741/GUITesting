@@ -10,8 +10,6 @@ public:
 	int getHeight() { return height; }
 	int getWidth() { return width; }
 private:
-	bool* bitmap, *bitmapF; 
+	bool* bitmap, *bitmapF;  // A bitmap of the shape filled and not (not automatic)
 	int width, height;
 };
-
-// Kan man initiera ett fält till nollor

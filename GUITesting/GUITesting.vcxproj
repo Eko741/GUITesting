@@ -139,9 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Circle.cpp" />
+    <ClCompile Include="Figure2D.cpp" />
     <ClCompile Include="Point2D.cpp" />
     <ClCompile Include="Point3D.cpp" />
     <ClCompile Include="Point3DList.cpp" />
+    <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="RendererClass.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="win32_platform.cpp">
@@ -152,11 +155,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Circle.h" />
+    <ClInclude Include="Figure2D.h" />
     <ClInclude Include="FlightLogData.h" />
     <ClInclude Include="Point3DList.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Point2D.h" />
     <ClInclude Include="Point3D.h" />
+    <ClInclude Include="Rectangle.h" />
     <ClInclude Include="RendererClass.h" />
     <ClInclude Include="Shape.h" />
   </ItemGroup>

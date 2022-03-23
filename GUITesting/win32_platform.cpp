@@ -6,8 +6,11 @@
 #include <chrono>
 #include <string>
 #include "Point.h"
+#include "Rectangle.h"
+#include "Circle.h"
+#include "Figure2D.h"
 
-using namespace std;
+//using namespace std;
 bool running = true;
 Renderer renderer;
 
@@ -42,7 +45,7 @@ LRESULT CALLBACK window_callback(HWND hwnd, UINT   uMsg, WPARAM wParam, LPARAM l
 	}
 
 	default: {
-		result = DefWindowProc(hwnd, uMsg, wParam, lParam); // Does nothing
+		result = DefWindowProc(hwnd, uMsg, wParam, lParam); // When defualt is hit do nothing
 	}
 	}
 	return result;
@@ -65,21 +68,19 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 	HDC hdc = GetDC(window); // Handle to the decive context from window
 
 
-	using clock = chrono::high_resolution_clock;
-	chrono::time_point<chrono::high_resolution_clock> lastRefresh = clock::now();
-	chrono::time_point<chrono::high_resolution_clock> lastFps = clock::now();
-	chrono::time_point<chrono::high_resolution_clock> endOfRender = clock::now();
-	chrono::milliseconds MSPERFRAME = 15ms;;
 	int x = 0;
 	int framecounter = 0;
-	Point3D a(1, 1, 5);
-	Point3D b(2, 1, 5);
-	Point3D c(2, 2, 5);
-	Point3D d(1, 2, 5);
-	Point3D e(1, 1, 6);
-	Point3D f(2, 1, 6);
-	Point3D g(2, 2, 6);
-	Point3D h(1, 2, 6);
+	Point3D a(3, 1, 5);
+	Point3D b(4, 1, 5);
+	Point3D c(4, 2, 5);
+	Point3D d(3, 2, 5);
+	Point3D e(3, 1, 6);
+	Point3D f(4, 1, 6);
+	Point3D g(4, 2, 6);
+	Point3D h(3, 2, 6);
+
+	Figure2D* circle = new Circle(100, -100, 140, -140);
+	Figure2D* rect = new Rectanglee(120, -210, 140, -250);
 
 	Point3DList list;
 	list.get2DFLData("binData.FL");
@@ -94,46 +95,48 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 			DispatchMessage(&message);
 		}
 		// Simulate
-		
+		renderer.startHashingPass();
+		for (int i = 0; i < 2; i++) {
+			renderer.clearScreen();
 
-		//if (clock::now() - endOfRender >= MSPERFRAME) {
-			renderer.startHashingPass();
-			for (int i = 0; i < 2; i++) {
-				renderer.clearScreen();
-				//renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
-				//renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
-				/*renderer.drawLine(a, b, 0xffffff);
-				renderer.drawLine(b, c, 0xffffff);
-				renderer.drawLine(c, d, 0xffffff);
-				renderer.drawLine(a, d, 0xffffff);
-				renderer.drawLine(a, e, 0xffffff);
-				renderer.drawLine(b, f, 0xffffff);
-				renderer.drawLine(c, g, 0xffffff);
-				renderer.drawLine(d, h, 0xffffff);
-				renderer.drawLine(e, f, 0xffffff);
-				renderer.drawLine(f, g, 0xffffff);
-				renderer.drawLine(g, h, 0xffffff);
-				renderer.drawLine(e, h, 0xffffff);*/
 
-				renderer.graphFromFile("binData.FL", 1); //
+			renderer.drawLine(0, (renderer.Height() - 1) / 2, renderer.Width() - 1, (renderer.Height() - 1) / 2, 0xffffff, RenderMode::Game);
+			renderer.drawLine((renderer.Width() - 1) / 2, 0, (renderer.Width() - 1) / 2, renderer.Height() - 1, 0xffffff, RenderMode::Game);
+			// Draws a cube
+			renderer.drawLine(a, b, 0xffffff);
+			renderer.drawLine(b, c, 0xffffff);
+			renderer.drawLine(c, d, 0xffffff);
+			renderer.drawLine(a, d, 0xffffff);
+			renderer.drawLine(a, e, 0xffffff);
+			renderer.drawLine(b, f, 0xffffff);
+			renderer.drawLine(c, g, 0xffffff);
+			renderer.drawLine(d, h, 0xffffff);
+			renderer.drawLine(e, f, 0xffffff);
+			renderer.drawLine(f, g, 0xffffff);
+			renderer.drawLine(g, h, 0xffffff);
+			renderer.drawLine(e, h, 0xffffff);
 
+			// Draws two figures
+			renderer << *rect;
+			renderer << *circle;
+
+			// Draws three graphs.
+			renderer.graphFromFile("goodbinData.FL", 1, 0xffaaff); 
+			renderer.graphFromFile("asd.FL", 1, 0xaaffaa);
+			renderer.graphFromFile("cbinData.FL", 1); 
+
+			// Draws a red point
+			renderer.drawPoint(Point2D(200, -200), 2, 0xff1111);
 
 				
-				if (!i) {
-					if (renderer.render())
-						break;
-				}
-				else
-					StretchDIBits(hdc, 0, 0, renderer.Width(), renderer.Height(), 0, 0, renderer.Width(), renderer.Height(), renderer.memory, &renderer.bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
-
+			if (!i) {
+				if (renderer.render())
+					break;
 			}
-
-			/*endOfRender = clock::now();
-			x++;
-			framecounter++;
+			else
+				StretchDIBits(hdc, 0, 0, renderer.Width(), renderer.Height(), 0, 0, renderer.Width(), renderer.Height(), renderer.memory, &renderer.bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+				// Makes the cpu send the vidoe memory data to screen kind of. It also does some work
+				// In the middle
 		}
-		if (framecounter == 60) {
-			lastFps = clock::now();
-			framecounter = 0;*/
 	}
 }

@@ -2,8 +2,11 @@
 #include "Shape.h"
 #include <windows.h>
 #include "Point.h"
+#include "Figure2D.h"
+#include "Rectangle.h"
+#include "Circle.h"
 enum RenderMode {
-	Game, Math, Pojection
+	Game, Math
 };
 class Renderer {
 public:
@@ -34,13 +37,12 @@ public:
 	//Type 1 = longestWaitTimeAir  2 = longestWaitTimeGround 3 = averageWaitTimeAir 4 = averageWaitTimeGround 5 = averageTimeWasted 6 = failRate
 
 	void clearScreen();
-	void drawRectF(int x, int y, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math);
+	void drawRectF(int x, int y, int width, int height, unsigned int color = 0xffffff, RenderMode renderMode = RenderMode::Math);
 	void drawRect(int x, int y, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math);
 	void drawCircle(int x, int y, int r, int color, RenderMode renderMode = RenderMode::Math);
 	void drawCircleF(int x, int y, int r, int color, RenderMode renderMode = RenderMode::Math);
-	void drawCircle(int x, int y, int color, Shape* circle, RenderMode renderMode = RenderMode::Math);
-	void drawShapeF(int x, int y, Shape* s, int color, RenderMode renderMode = RenderMode::Math);
-	void drawLine(int x1, int  y1, int  x2, int  y2, int color = 0xffffff, RenderMode renderMode = RenderMode::Math);
+	void drawShapeF(int x, int y, Shape* s, int color, RenderMode renderMode = RenderMode::Math); // Unsafe
+	void drawLine(int x1, int  y1, int  x2, int  y2, int color = 0xffffff, RenderMode renderMode = RenderMode::Math); // Not very good
 	void drawPoint(int x, int y, int color, int size = 1, RenderMode renderMode = RenderMode::Math);
 	
 	void drawRectF(Point2D point, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math)
@@ -49,14 +51,15 @@ public:
 	void drawRect(Point2D point, int width, int height, unsigned int color, RenderMode renderMode = RenderMode::Math)
 	{ drawRect(point.X(), point.Y(), width, height, color, renderMode); }
 
+	void drawRect(Point2D pointA, Point2D pointB, unsigned int color, RenderMode renderMode = RenderMode::Math) {
+		drawRect(pointA.X(), pointA.Y(), pointB.X() - pointA.X(), pointB.Y() - pointA.Y(), color);
+	}
+
 	void drawCircle(Point2D point, int r, int color, RenderMode renderMode = RenderMode::Math)
 	{ drawCircle(point.X(), point.Y(), r, color, renderMode); }
 
 	void drawCircleF(Point2D point, int r, int color, RenderMode renderMode = RenderMode::Math)
 	{ drawCircleF(point.X(), point.Y(), r, color, renderMode); }
-
-	void drawCircle(Point2D point, int color, Shape* circle, RenderMode renderMode = RenderMode::Math)
-	{ drawCircle(point.X(), point.Y(), color, circle, renderMode); }
 
 	void drawShapeF(Point2D point, Shape* s, int color, RenderMode renderMode = RenderMode::Math)
 	{ drawShapeF(point.X(), point.Y(), s, color, renderMode); }
@@ -64,11 +67,12 @@ public:
 	void drawLine(Point2D point1, Point2D point2, int color = 0xffffff, RenderMode renderMode = RenderMode::Math)
 	{ drawLine(point1.X(), point1.Y(), point2.X(), point2.Y(), color, renderMode); }
 
-	void drawPoint(Point2D point, int color = 0xffffff, int size = 1, RenderMode renderMode = RenderMode::Math)
+	void drawPoint(Point2D point, int size = 1, int color = 0xffffff, RenderMode renderMode = RenderMode::Math)
 	{ drawPoint(point.X(), point.Y(), color, size, renderMode); }
 	
 	void drawLine(Point3D point1, Point3D point2, int color = 0xffffff);
 	//void drawCube(Point3D point, int length = 1, int color = 0xfffffff);
 
+	Renderer& operator<<(Figure2D& figure);
 };
  
