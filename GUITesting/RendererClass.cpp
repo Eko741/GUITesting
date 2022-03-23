@@ -1,6 +1,9 @@
 #include "RendererClass.h"
 #include <algorithm>
 #include <string>
+#include <fstream>
+#include "FlightLogData.h"
+using namespace std;
 
 void Renderer::clearScreen() {
 	if (hashingPass) {
@@ -370,22 +373,33 @@ void Renderer::drawPoint(int x, int y, int color, int size, RenderMode renderMod
 	
 }
 
-void Renderer::graphFromFile(std::string file, int color)
+void Renderer::graphFromFile(std::string file, int type, int color)
 {
-	Point3DList list;
-	list.get2DFLData(file);
+	if (type > 6 || type < 1) return;
+	ifstream data(file, ios::binary);
+	if (!data.is_open())
+		return;
+
+	int length = 0;
+	data.read((char*)&length, 4);
+	FlightLogData* FLD = new FlightLogData[length];
+	data.read(((char*)FLD), (unsigned long)length * 40);
+
 	double max = 0;
-	for (int i = 0; i < list.Length(); i++)
-		if (list[i].Y() > max)
-			max = list[i].Y();
+	for (int i = 0; i < length; i++)
+		if (FLD[i].failRate > max)
+			max = FLD[i].failRate;
 
-	if (!(max && list.Length())) return;
-
+	if (!(max && length)) return;
+	//Type 1 = longestWaitTimeAir  2 = longestWaitTimeGround 3 = averageWaitTimeAir 4 = averageWaitTimeGround 5 = averageTimeWasted 6 = failRate
+	int offset = 0;
+	if (type > 1)
+		offset += 4 + (type - 2) * 8;
 		
 	double ratioHeight = (sHeight - 100) / max;
-	double ratioWidth = ((double)sWidth - 100) / list.Length();
-	for (int i = 0; i < list.Length() - 1; i++)
-		drawLine(list[i].X() * ratioWidth + 50, -list[i].Y() * ratioHeight + sHeight - 50, list[i + 1].X() * ratioWidth + 50, -list[i + 1].Y()* ratioHeight + sHeight - 50, color, RenderMode::Game);
+	double ratioWidth = ((double)sWidth - 100) / length;
+	for (int i = 0; i < length - 1; i++)
+		drawLine(i * ratioWidth + 50, -FLD[i].failRate * ratioHeight + sHeight - 50, (i + 1) * ratioWidth + 50, -FLD[i + 1].failRate * ratioHeight + sHeight - 50, color, RenderMode::Game);
 	
 
 }

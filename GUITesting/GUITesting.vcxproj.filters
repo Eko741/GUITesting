@@ -53,5 +53,8 @@
     <ClInclude Include="Point3DList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FlightLogData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -115,7 +115,7 @@ int  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 				renderer.drawLine(g, h, 0xffffff);
 				renderer.drawLine(e, h, 0xffffff);*/
 
-				renderer.graphFromFile("binData.FL");
+				renderer.graphFromFile("binData.FL", 1); //
 
 
 				
