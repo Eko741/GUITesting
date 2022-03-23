@@ -13,3 +13,8 @@ Point3D::operator Point2D() const
 {
 	return Point2D(x, y);
 }
+
+const Point3D& Point3D::operator-() const
+{
+	return Point3D(-x, -y, -z);
+}

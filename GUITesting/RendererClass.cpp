@@ -3,7 +3,6 @@
 #include <string>
 #include <fstream>
 #include "FlightLogData.h"
-using namespace std;
 
 void Renderer::clearScreen() {
 	if (hashingPass) {
@@ -17,20 +16,27 @@ void Renderer::clearScreen() {
 }
 
 void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color, RenderMode renderMode) {
-
 	if (hashingPass) {
 		renderID += ((long)((x << 16) ^ y) ^ ((long)((width << 16) ^ height) << 32)) + color;
 		return;
 	}
-	
-	//If math mode render things from the middle and greater Y means higher up on screen
+	// Makes sure the rendering is done correctly
 	if (renderMode == RenderMode::Math) {
+		height *= -1;
 		y *= -1;
 		y += sHeight / 2;
 		x += sWidth / 2;
 	}
-
-	//Clipping the rectangle to the screen
+	// Makes sure the width and height aren't negative
+	if (width < 0) {
+		x = x + width;
+		width *= -1;
+	}
+	if (height < 0) {
+		y = y + height;
+		height *= -1;
+	}
+	// Makes sure the renderer doesn't try to acces memory outside the designated adresses
 	if (x < 0) {
 		width += x;
 		if (width <= 0)
@@ -53,11 +59,11 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 		if (height <= 0)
 			return;
 	}
-	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth; // Set the memory pointer to the top left of the rectangle
+	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth; // Starting in the top left corner of the rectangle
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++)
-			*pixel++ = color;
-		pixel += sWidth - width; // Go down to the pixel below then back the width of the rectangle
+			*pixel++ = color; // All the pixels inside the rectangle are changed to the right coulor
+		pixel += sWidth - width; // Goes down one pixel in height and width pixels back
 	}
 }
 
@@ -67,13 +73,25 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color,
 		renderID += ((long)((x << 16) ^ y) ^ ((long)((width << 16) ^ height) << 32)) + color;
 		return;
 	}
-
-	x += (renderMode * sWidth) / 2;
+	// Makes sure the rendering is done correctly
 	if (renderMode == RenderMode::Math) {
+		height *= -1;
 		y *= -1;
 		y += sHeight / 2;
+		x += sWidth / 2;
 	}
 
+	// Makes sure the width and height aren't negative
+	if (width < 0) {
+		x = x + width;
+		width *= -1;
+	}
+	if (height < 0) {
+		y = y + height;
+		height *= -1;
+	}
+
+	// Makes sure the renderer doesn't try to acces memory outside the designated adresses
 	bool drawLeft = true, drawRight = true, drawBottom = true, drawTop = true;
 	if (x < 0) {
 		width += x;
@@ -126,12 +144,15 @@ void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode)
 		return;
 	}
 
-	x += (renderMode * sWidth) / 2;
+	// Makes sure the rendering is done correctly
 	if (renderMode == RenderMode::Math) {
 		y *= -1;
+		x += sWidth / 2;
 		y += sHeight / 2;
 	}
-
+	if (r < 0)
+		r *= -1;
+	// Makes sure the renderer doesn't try to acces memory outside the designated adresses
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
 	if (xStart >= sWidth || yStart >= sHeight || xStop < 0 || yStop < 0) return;
 
@@ -163,6 +184,7 @@ void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode)
 		for (int j = -xStart; j < xStop; j++) {
 			// Because only one quarter of the circle i stored in memory it's mirrored to form a whole circle
 			if (c->getBitmap((j >= r) ? r * 2 - 1 - j : j, (i >= r) ? r * 2 - 1 - i : i)) *pixel = color;
+			// If the next bit in the bitmap is over half of the circle invert which bit to get so that we now go from largest to smallest
 			pixel++;
 		}
 		pixel += sWidth - xStop - xStart;
@@ -170,15 +192,16 @@ void Renderer::drawCircle(int x, int y, int r, int color, RenderMode renderMode)
 }
 
 void Renderer::drawCircleF(int x, int y, int r, int color, RenderMode renderMode) {
+	// Same as drawCircle just a different bitmap
 	if (hashingPass) {
 		renderID += ((long)((x << 16) ^ y) ^ ((long)((r << 16) ^ (long)circleCache) << 32)) + color;
 		return;
 	}
 
-	x += (renderMode * sWidth) / 2;
 	if (renderMode == RenderMode::Math) {
 		y *= -1;
 		y += sHeight / 2;
+		x += sWidth / 2;
 	}
 
 	int xStart = x - r, xStop = x + r, yStart = y - r, yStop = y + r;
@@ -218,48 +241,19 @@ void Renderer::drawCircleF(int x, int y, int r, int color, RenderMode renderMode
 	}
 }
 
-void Renderer::drawCircle(int x, int y, int color, Shape* circle, RenderMode renderMode) {
-	if (hashingPass) {
-		renderID += ((long)((x << 16) ^ y) ^ ((long)(((int)circle << 16) ^ circle->getHeight()) << 32)) + color;
-		return;
-	}
-	x += (renderMode * sWidth) / 2;
-	if (renderMode == RenderMode::Math) {
-		y *= -1;
-		y += sHeight / 2;
-	}
-
-	if (!circle)
-		return;
-	int r = circle->getWidth();
-	if (x - r > sWidth || y - r > sHeight) return;
-	int xOverlap = x + r - sWidth;
-	if (xOverlap < 0) xOverlap = 0;
-	else xOverlap++;
-	int yOverlap = y + r - sHeight;
-	if (yOverlap < 0) yOverlap = 0;
-	else yOverlap++;
-
-	unsigned int* pixel = (unsigned int*)memory + x - r + (y - r) * sWidth;
-	for (int i = 0; i < r * 2 - yOverlap; i++) {
-		for (int j = 0; j < r * 2 - xOverlap; j++) {
-			if (circle->getBitmap((j >= r) ? r * 2 - 1 - j : j, (i >= r) ? r * 2 - 1 - i : i)) *pixel = color;
-			pixel++;
-		}
-		pixel += sWidth - 2 * r + xOverlap;
-	}
-}
 
 void Renderer::drawShapeF(int x, int y, Shape* s, int color, RenderMode renderMode) {
+	// Almost the same as drawing circles but now we don't mirror the half as 
+	// We don't know if the shape is symmetrical
 	if (hashingPass) {
 		renderID += ((long)((x << 16) ^ y) ^ ((long)(((int)s << 16) ^ s->getHeight()) << 32)) + color;
 		return;
 	}
 
-	x += (renderMode * sWidth) / 2;
 	if (renderMode == RenderMode::Math) {
 		y *= -1;
 		y += sHeight / 2;
+		x += sWidth / 2;
 	}
 
 	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth;
@@ -278,7 +272,7 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 		renderID += ((long)((x1 << 16) ^ y1) ^ ((long)((x2 << 16) ^ y2) << 32)) + color + (int)renderMode << 24;
 		return;
 	}
-
+	// Makes sure the rendering is done correctly
 	if (renderMode == RenderMode::Math) {
 		x1  += sWidth / 2;
 		x2 +=  sWidth / 2;
@@ -288,9 +282,10 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 		y2 += sHeight / 2;
 		
 	}
-
+	// No clipping if the line is out of the screen it doesn't draw anything
 	if (x1 > sWidth - 1 || x1 < 0 || x2 > sWidth - 1 || x2 < 0 || y1 > sHeight - 1 || y1 < 0 || y2 > sHeight - 1 || y2 < 0) return;
 
+	// If the line is vertical
 	if (x1 == x2) {
 		unsigned int* pixel = (unsigned int*)memory + x1 + ((y1 < y2) ? y1 : y2) * sWidth;
 		int l = abs(y1 - y2) + 1;
@@ -300,7 +295,7 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 		}
 		return;
 	}
-
+	// If the line is horizontal
 	if (y1 == y2) {
 		unsigned int* pixel = (unsigned int*)memory + ((x1 < x2) ? x1 : x2) + y1 * sWidth;
 		int l = abs(x1 - x2) + 1;
@@ -309,7 +304,7 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 		}
 		return;
 	}
-
+	// If x1 os larger than x2 the algoritm doesn't work
 	if (x1 > x2) {
 		std::swap(x1, x2);
 		std::swap(y1, y2);
@@ -319,7 +314,14 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 	int deltaY = y2 - y1;
 	double k = deltaY / (double)deltaX;
 	double a = 0;
-	unsigned int* pixel = (unsigned int*)memory + x1 + y1 * sWidth;
+	unsigned int* pixel = (unsigned int*)memory + x1 + y1 * sWidth; // Start at x1 y1
+
+
+	// The two different cases are there so that a slope with a too big k value doesn't get
+	// "spotty" but  they essantially do the same thing. First case K = x / y Second case K = y /x.
+	// First case is like turning the paper 90 deg when drawing the line
+	// Both add the k value(the slope) to a each iteration. The a value is like subpixels
+	// when a >= 1 the memmory pointer is moved up once on the screen and a becomes one smaller.
 
 	if (k > 1 || k < -1) {
 		k = deltaX / (double)deltaY;
@@ -338,6 +340,10 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 			pixel += k < 0 ? -sWidth : sWidth;
 		}
 		*((unsigned int*)memory + x2 + y2 * sWidth) = color;
+		// Sets the last point to the correct colour. Without this the last point would
+		//sometimes not be set due to the nature of the binary system
+		//(some nunmbers aren't excact as dubbles) like one third in the decimal system
+		
 		return;
 	}
 
@@ -348,13 +354,14 @@ void Renderer::drawLine(int x1, int  y1, int  x2, int  y2, int color, RenderMode
 			pixel += sWidth;
 			a--;
 		}
-		if (a <= -1) {
+		else if (a <= -1) {
 			pixel -= sWidth;
 			a++;
 		}
 		*pixel++ = color;
 	}
-	*((unsigned int*)memory + x2 + y2 * sWidth) = color;
+	*((unsigned int*)memory + x2 + y2 * sWidth) = color; 
+	
 
 
 }
@@ -374,36 +381,34 @@ void Renderer::drawPoint(int x, int y, int color, int size, RenderMode renderMod
 
 void Renderer::graphFromFile(std::string file, int type, int color)
 {
-	if (type > 6 || type < 1) return;
-	ifstream data(file, ios::binary);
-	if (!data.is_open())
+	if (type > 6 || type < 1) return; // Types are work in progress
+	// Type 1 = longestWaitTimeAir  2 = longestWaitTimeGround 3 = averageWaitTimeAir 4 = averageWaitTimeGround 5 = averageTimeWasted 6 = failRate
+	std::ifstream data(file, std::ios::binary); // Open the file
+	if (!data.is_open()) // If the file didn't open return
 		return;
 
 	int length = 0;
-	data.read((char*)&length, 4);
-	FlightLogData* FLD = new FlightLogData[length];
-	data.read(((char*)FLD), (unsigned long)length * 40);
+	data.read((char*)&length, 4); // Get the size of the dataset stored as an integer
+								  // in the first 4 bytes as is the standard in the .FL format
+	FlightLogData* FLD = new FlightLogData[length]; 
+	data.read(((char*)FLD), (unsigned long)length * 40); // Read the data into the array
 
-	double max = 0;
+	double max = 0; //Get the max to be able to scale correctly
 	for (int i = 0; i < length; i++)
 		if (FLD[i].failRate > max)
 			max = FLD[i].failRate;
 
-	if (!(max && length)) return;
-	//Type 1 = longestWaitTimeAir  2 = longestWaitTimeGround 3 = averageWaitTimeAir 4 = averageWaitTimeGround 5 = averageTimeWasted 6 = failRate
-	int offset = 0;
-	if (type > 1)
-		offset += 4 + (type - 2) * 8;
+	if (!(max && length)) return; // No dividing by 0
 		
-	double ratioHeight = (sHeight - 100) / max;
-	double ratioWidth = ((double)sWidth - 100) / length;
+	double ratioHeight = (sHeight - 100) / max; // Y scaling
+	double ratioWidth = ((double)sWidth - 100) / length; // X scaling
 	for (int i = 0; i < length - 1; i++)
+		//Draws a line from one point to the one in front
 		drawLine(i * ratioWidth + 50, -FLD[i].failRate * ratioHeight + sHeight - 50, (i + 1) * ratioWidth + 50, -FLD[i + 1].failRate * ratioHeight + sHeight - 50, color, RenderMode::Game);
-	
-
+	delete[] FLD; // No memory leaks!!
 }
 
-bool Renderer::render() {
+bool Renderer::render() { // Work in progress works on some functions not others
 	bool r = renderID == prevRenderID;
 	prevRenderID = renderID;
 	renderID = 0;
@@ -412,8 +417,8 @@ bool Renderer::render() {
 	return false;
 }
 
-void Renderer::drawLine(Point3D point1, Point3D point2, int color) {
-	// Project 3D points to 2D points
+void Renderer::drawLine(Point3D point1, Point3D point2, int color) { 
+	// Project points in 3D space to projected points in 2D space
 	Point2D a, b;
 	if (!point1.Z()) return;
 
@@ -425,6 +430,14 @@ void Renderer::drawLine(Point3D point1, Point3D point2, int color) {
 	drawLine(a, b, 0xffffff, RenderMode::Game);
 }
 
-/*void Renderer::drawCube(Point3D point, int length, int color) {
-	drawLine(point, point);
-}*/
+Renderer& Renderer::operator<<(Figure2D& figure) {
+	// Figurs out the dynamic type and then renders them accordingly
+	if (dynamic_cast<Circle*>(&figure)) {
+		drawCircle(figure.PointA(), distance(figure.PointA(), figure.PointB()), 0xffffff);
+		return *this;
+	}
+	if (dynamic_cast<Rectanglee*>(&figure)) {
+			drawRect(figure.PointA(), figure.PointB(), 0xffffff);
+		return *this;
+	}
+}

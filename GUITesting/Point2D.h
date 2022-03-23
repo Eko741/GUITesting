@@ -10,4 +10,5 @@ public:
 	double Y() { return y; }
 	void X(double a) { x = a; }
 	void Y(double a) { y = a; }
+	friend const double distance(const Point2D& a, const Point2D& b);
 };
