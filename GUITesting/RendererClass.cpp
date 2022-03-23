@@ -10,10 +10,10 @@ void Renderer::clearScreen() {
 		renderID += 101010;
 		return;
 	}
-	unsigned int* pixel = (unsigned int*)memory;
+	unsigned int* pixel = (unsigned int*)memory; // Set a pointer to the first memory adress in the memory buffer.
 	for (int i = 0; i < sHeight; i++)
 		for (int j = 0; j < sWidth; j++)
-			*pixel++ = 0;
+			*pixel++ = 0; // Set every pixel on the screen to 0
 }
 
 void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color, RenderMode renderMode) {
@@ -22,13 +22,15 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 		renderID += ((long)((x << 16) ^ y) ^ ((long)((width << 16) ^ height) << 32)) + color;
 		return;
 	}
-
-	x += (renderMode * sWidth) / 2;
+	
+	//If math mode render things from the middle and greater Y means higher up on screen
 	if (renderMode == RenderMode::Math) {
 		y *= -1;
 		y += sHeight / 2;
+		x += sWidth / 2;
 	}
 
+	//Clipping the rectangle to the screen
 	if (x < 0) {
 		width += x;
 		if (width <= 0)
@@ -51,15 +53,16 @@ void Renderer::drawRectF(int x, int y, int width, int height, unsigned int color
 		if (height <= 0)
 			return;
 	}
-	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth;
+	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth; // Set the memory pointer to the top left of the rectangle
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++)
 			*pixel++ = color;
-		pixel += sWidth - width;
+		pixel += sWidth - width; // Go down to the pixel below then back the width of the rectangle
 	}
 }
 
 void Renderer::drawRect(int x, int y, int width, int height, unsigned int color, RenderMode renderMode) {
+	// Same as drawRectF but not filled in
 	if (hashingPass) {
 		renderID += ((long)((x << 16) ^ y) ^ ((long)((width << 16) ^ height) << 32)) + color;
 		return;
@@ -100,20 +103,16 @@ void Renderer::drawRect(int x, int y, int width, int height, unsigned int color,
 	}
 	unsigned int* pixel = (unsigned int*)memory + x + y * sWidth;
 
-	for (int i = 0; i < width - 1; i++) {
-		if (drawTop) *pixel = color;
-		pixel++;
-	}
+	for (int i = 0; i < width - 1; i++)
+		if (drawTop) *pixel++ = color;
 
 	for (int i = 0; i < height - 1; i++) {
 		if (drawRight) *pixel = color;
 		pixel += sWidth;
 	}
 
-	for (int i = 0; i < width - 1; i++) {
-		if (drawBottom) *pixel = color;
-		pixel--;
-	}
+	for (int i = 0; i < width - 1; i++)
+		if (drawBottom) *pixel-- = color;
 
 	for (int i = 0; i < height - 1; i++) {
 		if (drawLeft)*pixel = color;
